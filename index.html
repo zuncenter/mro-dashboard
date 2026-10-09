@@ -103,6 +103,43 @@
           โหลดข้อมูลใหม่
         </button>
       </div>
+      
+<div class="panel" style="margin-bottom:16px">
+  <h2>บันทึกการใช้วัสดุ</h2>
+  <p class="status">กรอกรหัสพนักงาน เลือกวัสดุ และระบุจำนวนที่ใช้</p>
+
+  <form id="usageForm">
+    <label for="employeeId">รหัสพนักงาน</label>
+    <input id="employeeId" type="text"
+      maxlength="50" required
+      placeholder="เช่น 640005"
+      style="width:100%;margin:8px 0 16px">
+
+    <label for="usageMaterial">เลือกวัสดุ</label>
+    <select id="usageMaterial" required
+      style="width:100%;margin:8px 0 16px;padding:11px;border-radius:8px;border:1px solid #d5dce7">
+      <option value="">กำลังโหลดรายการวัสดุ...</option>
+    </select>
+
+    <label for="usageQuantity">จำนวนที่ใช้</label>
+    <input id="usageQuantity" type="number"
+      min="1" step="1" value="1" required
+      style="width:100%;margin:8px 0 16px">
+
+    <label for="usageNotes">หมายเหตุ (ไม่บังคับ)</label>
+    <textarea id="usageNotes" maxlength="500"
+      placeholder="ระบุงานหรือเหตุผลที่ใช้วัสดุ"
+      style="width:100%;min-height:80px;margin:8px 0 16px;padding:11px;border:1px solid #d5dce7;border-radius:8px;font:inherit"></textarea>
+
+    <button id="saveUsageButton" type="submit">
+      บันทึกการใช้วัสดุ
+    </button>
+
+    <div id="usageStatus" class="status" role="status"
+      style="margin-top:12px"></div>
+  </form>
+</div>
+
       <div id="period" class="status">รอเชื่อมต่อข้อมูล</div>
       <div id="status" class="status" role="status">
         ยังไม่ได้โหลดข้อมูลจาก Supabase
