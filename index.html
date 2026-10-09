@@ -86,7 +86,7 @@ function updateMaterialSummary(){
 async function loadMaterials(){
  const b=document.getElementById("refreshButton");b.disabled=true;setStatus("status","กำลังโหลดข้อมูล...");
  try{
- if(SUPABASE_PUBLISHABLE_KEY==="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK"throw new Error("กรุณาใส่ Publishable Key ของ Supabase ในตัวแปร SUPABASE_PUBLISHABLE_KEY");
+ if(SUPABASE_PUBLISHABLE_KEY==="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK")throw new Error("กรุณาใส่ Publishable Key ของ Supabase ในตัวแปร SUPABASE_PUBLISHABLE_KEY");
  const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({})});
  const result=await r.json();if(!r.ok||result.success!==true)throw new Error(result.message||"API ตอบกลับ HTTP "+r.status);
  const p=result.result;if(!p||!Array.isArray(p.items))throw new Error("รูปแบบข้อมูลจาก API ไม่ถูกต้อง");
