@@ -86,7 +86,7 @@ function updateMaterialSummary(){
 async function loadMaterials(){
  const b=document.getElementById("refreshButton");b.disabled=true;setStatus("status","กำลังโหลดข้อมูล...");
  try{
- if(SUPABASE_PUBLISHABLE_KEY==="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK")throw new Error("กรุณาใส่ Publishable Key ของ Supabase ในตัวแปร SUPABASE_PUBLISHABLE_KEY");
+if (SUPABASE_PUBLISHABLE_KEY === "REPLACE_WITH_PUBLISHABLE_KEY") throw new Error("กรุณาใส่ Publishable Key ของ Supabase ในตัวแปร SUPABASE_PUBLISHABLE_KEY");
  const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({})});
  const result=await r.json();if(!r.ok||result.success!==true)throw new Error(result.message||"API ตอบกลับ HTTP "+r.status);
  const p=result.result;if(!p||!Array.isArray(p.items))throw new Error("รูปแบบข้อมูลจาก API ไม่ถูกต้อง");
@@ -107,7 +107,7 @@ document.getElementById("usageForm").addEventListener("submit",async e=>{
  if(!employee)return setStatus("usageStatus","กรุณากรอกรหัสพนักงาน","error");
  if(!allocation)return setStatus("usageStatus","กรุณาเลือกวัสดุ","error");
  if(!Number.isInteger(qty)||qty<=0)return setStatus("usageStatus","จำนวนต้องเป็นจำนวนเต็มมากกว่า 0","error");
- if(SUPABASE_PUBLISHABLE_KEY==="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK")return setStatus("usageStatus","กรุณาตั้งค่า Publishable Key ก่อนใช้งาน","error");
+if (SUPABASE_PUBLISHABLE_KEY === "REPLACE_WITH_PUBLISHABLE_KEY") return setStatus("usageStatus", "กรุณาตั้งค่า Publishable Key ก่อนใช้งาน", "error");
  const opt=document.getElementById("usageMaterial").selectedOptions[0];b.disabled=true;setStatus("usageStatus","กำลังบันทึกข้อมูล...");
  try{
  const r=await fetch(USAGE_API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({employee_id:employee,allocation_id:allocation,quantity:qty,request_key:createRequestKey(),notes:notes||null})});
