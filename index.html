@@ -1,1 +1,272 @@
 
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VSM3 MRO Dashboard</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Tahoma, sans-serif;
+      background: #f3f6fb;
+      color: #172033;
+    }
+    header {
+      background: #102b4e;
+      color: white;
+      padding: 24px;
+    }
+    header h1 { margin: 0 0 8px; font-size: 26px; }
+    header p { margin: 0; color: #d4e4f7; }
+    main { max-width: 1400px; margin: auto; padding: 24px; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .card, .panel {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px #15294a0c;
+    }
+    .card span { color: #68758b; font-size: 14px; }
+    .card strong { display: block; margin-top: 10px; font-size: 25px; }
+    .toolbar {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    input, button {
+      font: inherit; padding: 11px 14px;
+      border-radius: 8px; border: 1px solid #d5dce7;
+    }
+    input { flex: 1; min-width: 220px; }
+    button {
+      cursor: pointer; background: #1769d2;
+      color: white; border: 0;
+    }
+    button:disabled { opacity: .5; cursor: wait; }
+    .status { margin: 12px 0; color: #52627a; font-size: 14px; }
+    .table-wrap { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; min-width: 850px; }
+    th, td {
+      padding: 13px 12px; border-bottom: 1px solid #e7ebf2;
+      text-align: left; font-size: 14px;
+    }
+    th { background: #f7f9fc; color: #4d5b70; white-space: nowrap; }
+    td.num, th.num { text-align: right; white-space: nowrap; }
+    .tag {
+      display: inline-block; padding: 4px 8px;
+      border-radius: 20px; background: #e7f7ed; color: #187744;
+    }
+    .tag.zero { background: #fff1dc; color: #925500; }
+    .error { color: #b42318; }
+    footer { text-align: center; padding: 24px; color: #68758b; font-size: 13px; }
+    @media(max-width: 700px) {
+      main { padding: 14px; }
+      header { padding: 20px 14px; }
+      .cards { grid-template-columns: 1fr; }
+      .card { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>VSM3 MRO Dashboard</h1>
+    <p>ระบบติดตามวัสดุและโควตาเบิกประจำเดือน</p>
+  </header>
+
+  <main>
+    <section class="cards">
+      <div class="card">
+        <span>รายการวัสดุ</span>
+        <strong id="itemCount">—</strong>
+      </div>
+      <div class="card">
+        <span>โควตารวม (ชิ้น)</span>
+        <strong id="quotaTotal">—</strong>
+      </div>
+      <div class="card">
+        <span>งบประมาณรวม</span>
+        <strong id="budgetTotal">—</strong>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <input id="search" type="search"
+          placeholder="ค้นหารหัสวัสดุหรือชื่อวัสดุ...">
+        <button id="refreshButton" onclick="loadMaterials()">
+          โหลดข้อมูลใหม่
+        </button>
+      </div>
+      <div id="period" class="status">รอเชื่อมต่อข้อมูล</div>
+      <div id="status" class="status" role="status">
+        ยังไม่ได้โหลดข้อมูลจาก Supabase
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>รหัสวัสดุ</th>
+              <th>รายละเอียด</th>
+              <th class="num">ราคา/หน่วย</th>
+              <th class="num">โควตา</th>
+              <th class="num">เบิกแล้ว</th>
+              <th class="num">คงเหลือ</th>
+              <th class="num">งบประมาณ</th>
+            </tr>
+          </thead>
+          <tbody id="materials">
+            <tr><td colspan="7">ยังไม่มีข้อมูล</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer>VSM3 MRO · Material and Monthly Quota Dashboard</footer>
+
+  <script>
+    // ใส่ค่า Project URL และ Publishable key ในขั้นตอนเชื่อม API
+    const API_URL =
+      "https://jtlvmefokhfnpgwhyutl.supabase.co/functions/v1/mro-api";
+    const SUPABASE_PUBLISHABLE_KEY = "REPLACE_WITH_PUBLISHABLE_KEY";
+
+    let allItems = [];
+    let currentPeriod = "";
+
+    const money = value =>
+      Number(value || 0).toLocaleString("th-TH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+
+    const number = value =>
+      Number(value || 0).toLocaleString("th-TH");
+
+    function renderItems() {
+      const query = document.getElementById("search")
+        .value.trim().toLowerCase();
+
+      const filtered = allItems.filter(item =>
+        String(item.item_number || "").toLowerCase().includes(query) ||
+        String(item.description || "").toLowerCase().includes(query)
+      );
+
+      const tbody = document.getElementById("materials");
+
+      if (!filtered.length) {
+        tbody.innerHTML =
+          '<tr><td colspan="7">ไม่พบรายการวัสดุ</td></tr>';
+        return;
+      }
+
+      tbody.replaceChildren();
+
+      filtered.forEach(item => {
+        const tr = document.createElement("tr");
+        const values = [
+          item.item_number,
+          item.description,
+          money(item.unit_price),
+          number(item.allowed_qty),
+          number(item.used_qty),
+          item.remaining_qty == null
+            ? "ไม่มีโควตา"
+            : number(item.remaining_qty),
+          money(item.budget_amount)
+        ];
+
+        values.forEach((value, index) => {
+          const td = document.createElement("td");
+          td.textContent = value ?? "—";
+          if (index >= 2) td.className = "num";
+          if (index === 5 && Number(item.remaining_qty) === 0) {
+            td.innerHTML = "";
+            const tag = document.createElement("span");
+            tag.className = "tag zero";
+            tag.textContent = value;
+            td.appendChild(tag);
+          }
+          tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function loadMaterials() {
+      const status = document.getElementById("status");
+      const button = document.getElementById("refreshButton");
+
+      button.disabled = true;
+      status.className = "status";
+      status.textContent = "กำลังโหลดข้อมูล...";
+
+      try {
+        if (SUPABASE_PUBLISHABLE_KEY ===
+            "REPLACE_WITH_PUBLISHABLE_KEY") {
+          throw new Error("ยังไม่ได้ตั้งค่า Publishable key");
+        }
+
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_PUBLISHABLE_KEY,
+            "Authorization": "Bearer " + SUPABASE_PUBLISHABLE_KEY
+          },
+          body: JSON.stringify({})
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || result.success !== true) {
+          throw new Error(
+            result.message || "API ตอบกลับ HTTP " + response.status
+          );
+        }
+
+        const payload = result.result;
+        if (!payload || !Array.isArray(payload.items)) {
+          throw new Error("รูปแบบข้อมูลจาก API ไม่ถูกต้อง");
+        }
+
+        allItems = payload.items;
+        currentPeriod = payload.period || "";
+
+        document.getElementById("itemCount").textContent =
+          number(payload.count);
+        document.getElementById("quotaTotal").textContent =
+          number(allItems.reduce(
+            (sum, item) => sum + Number(item.allowed_qty || 0), 0
+          ));
+        document.getElementById("budgetTotal").textContent =
+          "฿" + money(allItems.reduce(
+            (sum, item) => sum + Number(item.budget_amount || 0), 0
+          ));
+        document.getElementById("period").textContent =
+          "งวดโควตา: " + currentPeriod;
+
+        renderItems();
+        status.textContent =
+          "โหลดข้อมูลสำเร็จ " + allItems.length + " รายการ";
+      } catch (error) {
+        status.className = "status error";
+        status.textContent = "โหลดข้อมูลไม่สำเร็จ: " + error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    document.getElementById("search")
+      .addEventListener("input", renderItems);
+  </script>
+</body>
+</html>
+
