@@ -55,7 +55,7 @@ footer{text-align:center;padding:24px;color:#68758b;font-size:13px}
 <script>
 const API_URL="https://jtlvmefokhfnpgwhyutl.supabase.co/functions/v1/mro-api";
 const USAGE_API_URL="https://jtlvmefokhfnpgwhyutl.supabase.co/functions/v1/mro-secure-api";
-const sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK";
 let allItems=[],currentPeriod="";
 const money=v=>Number(v||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2});
 const number=v=>Number(v||0).toLocaleString("th-TH");
@@ -86,8 +86,8 @@ function updateMaterialSummary(){
 async function loadMaterials(){
  const b=document.getElementById("refreshButton");b.disabled=true;setStatus("status","กำลังโหลดข้อมูล...");
  try{
- if(sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK==="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK")throw new Error("กรุณาใส่ Publishable Key ของ Supabase ในตัวแปร sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK");
- const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK,"Authorization":"Bearer "+sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK},body:JSON.stringify({})});
+ if(SUPABASE_PUBLISHABLE_KEY==="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK")throw new Error("กรุณาใส่ Publishable Key ของ Supabase ในตัวแปร SUPABASE_PUBLISHABLE_KEY");
+ const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({})});
  const result=await r.json();if(!r.ok||result.success!==true)throw new Error(result.message||"API ตอบกลับ HTTP "+r.status);
  const p=result.result;if(!p||!Array.isArray(p.items))throw new Error("รูปแบบข้อมูลจาก API ไม่ถูกต้อง");
  allItems=p.items;currentPeriod=p.period||"";
@@ -107,10 +107,10 @@ document.getElementById("usageForm").addEventListener("submit",async e=>{
  if(!employee)return setStatus("usageStatus","กรุณากรอกรหัสพนักงาน","error");
  if(!allocation)return setStatus("usageStatus","กรุณาเลือกวัสดุ","error");
  if(!Number.isInteger(qty)||qty<=0)return setStatus("usageStatus","จำนวนต้องเป็นจำนวนเต็มมากกว่า 0","error");
- if(sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK==="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK")return setStatus("usageStatus","กรุณาตั้งค่า Publishable Key ก่อนใช้งาน","error");
+ if(SUPABASE_PUBLISHABLE_KEY==="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK")return setStatus("usageStatus","กรุณาตั้งค่า Publishable Key ก่อนใช้งาน","error");
  const opt=document.getElementById("usageMaterial").selectedOptions[0];b.disabled=true;setStatus("usageStatus","กำลังบันทึกข้อมูล...");
  try{
- const r=await fetch(USAGE_API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK},body:JSON.stringify({employee_id:employee,allocation_id:allocation,quantity:qty,request_key:createRequestKey(),notes:notes||null})});
+ const r=await fetch(USAGE_API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({employee_id:employee,allocation_id:allocation,quantity:qty,request_key:createRequestKey(),notes:notes||null})});
  const result=await r.json();if(!r.ok||result.success!==true)throw new Error(result.message||result.error||"API ตอบกลับ HTTP "+r.status);
  setStatus("usageStatus","บันทึกสำเร็จ | รหัสวัสดุ: "+(result.item_number||opt.dataset.itemNumber)+" | จำนวน: "+number(result.quantity??qty)+" | มูลค่า: ฿"+money(result.total_amount??Number(opt.dataset.price||0)*qty)+(result.duplicate?" | รายการนี้ถูกบันทึกไว้แล้ว":""),"success");
  document.getElementById("usageQuantity").value="";document.getElementById("usageNotes").value="";await loadMaterials();
