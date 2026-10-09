@@ -1,122 +1,122 @@
-1,<!DOCTYPE html>
-2,"<html lang=""th"">"
-3,<head>
-4,"<meta charset=""UTF-8"">"
-5,"<meta name=""viewport"" content=""width=device-width, initial-scale=1"">"
-6,<title>VSM3 MRO Dashboard</title>
-7,<style>
-8,"*{box-sizing:border-box}body{margin:0;font-family:Arial,Tahoma,sans-serif;background:#f3f6fb;color:#172033}"
-9,header{background:#102b4e;color:white;padding:24px}header h1{margin:0 0 8px;font-size:26px}header p{margin:0;color:#d4e4f7}
-10,"main{max-width:1400px;margin:auto;padding:24px}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:20px}"
-11,".card,.panel{background:white;border-radius:12px;padding:20px;box-shadow:0 2px 8px #15294a0c;margin-bottom:18px}"
-12,.card span{color:#68758b;font-size:14px}.card strong{display:block;margin-top:10px;font-size:25px}
-13,".toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}input,select,textarea,button{font:inherit;padding:11px 14px;border-radius:8px;border:1px solid #d5dce7}"
-14,"input,select,textarea{width:100%;background:white;color:#172033}.toolbar input{flex:1;min-width:220px}"
-15,button{cursor:pointer;background:#1769d2;color:white;border:0}button:disabled{opacity:.5;cursor:wait}
-16,".form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:7px}"
-17,.field label{font-size:14px;color:#4d5b70;font-weight:bold}.field.full{grid-column:1/-1}
-18,.help{font-size:13px;color:#68758b;line-height:1.5}.status{margin:12px 0;color:#52627a;font-size:14px;line-height:1.5}
-19,.error{color:#b42318}.success{color:#187744}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:850px}
-20,"th,td{padding:13px 12px;border-bottom:1px solid #e7ebf2;text-align:left;font-size:14px}th{background:#f7f9fc;color:#4d5b70;white-space:nowrap}"
-21,"td.num,th.num{text-align:right;white-space:nowrap}.tag{display:inline-block;padding:4px 8px;border-radius:20px;background:#e7f7ed;color:#187744}"
-22,.tag.zero{background:#fff1dc;color:#925500}.material-summary{background:#f7f9fc;border-radius:8px;padding:12px;margin-top:12px;font-size:14px;line-height:1.8}
-23,footer{text-align:center;padding:24px;color:#68758b;font-size:13px}
-24,@media(max-width:700px){main{padding:14px}header{padding:20px 14px}.cards{grid-template-columns:1fr}.card{padding:16px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
-25,</style>
-26,</head>
-27,<body>
-28,<header><h1>VSM3 MRO Dashboard</h1><p>ระบบติดตามวัสดุ โควตาเบิกประจำเดือน และบันทึกการใช้วัสดุ</p></header>
-29,<main>
-30,"<section class=""cards"">"
-31,"<div class=""card""><span>รายการวัสดุ</span><strong id=""itemCount"">—</strong></div>"
-32,"<div class=""card""><span>โควตารวม (ชิ้น)</span><strong id=""quotaTotal"">—</strong></div>"
-33,"<div class=""card""><span>งบประมาณรวม</span><strong id=""budgetTotal"">—</strong></div>"
-34,</section>
-35,"<section class=""panel"">"
-36,<h2>บันทึกการใช้วัสดุ</h2>
-37,"<p class=""help"">กรอกรหัสพนักงาน เลือกวัสดุ และระบุจำนวนที่ใช้ ระบบจะบันทึกประวัติการใช้วัสดุโดยไม่ต้องเข้าสู่ระบบ</p>"
-38,"<form id=""usageForm""><div class=""form-grid"">"
-39,"<div class=""field""><label for=""employeeId"">รหัสพนักงาน *</label><input id=""employeeId"" required maxlength=""50"" autocomplete=""off"" placeholder=""เช่น 640005""></div>"
-40,"<div class=""field""><label for=""usageMaterial"">วัสดุ *</label><select id=""usageMaterial"" required><option value="""">กรุณาโหลดข้อมูลวัสดุก่อน</option></select></div>"
-41,"<div class=""field""><label for=""usageQuantity"">จำนวนที่ใช้ *</label><input id=""usageQuantity"" type=""number"" min=""1"" step=""1"" required placeholder=""ระบุจำนวนเต็ม""></div>"
-42,"<div class=""field""><label for=""usageNotes"">หมายเหตุ (ไม่บังคับ)</label><input id=""usageNotes"" maxlength=""500"" placeholder=""เช่น ใช้กับเครื่องจักรหรือไลน์ผลิต""></div>"
-43,"<div class=""field full""><div id=""materialSummary"" class=""material-summary"">เลือกวัสดุเพื่อดูราคา โควตา และยอดคงเหลือ</div></div>"
-44,"<div class=""field full""><button id=""submitUsage"" type=""submit"">บันทึกการใช้วัสดุ</button><div id=""usageStatus"" class=""status"" role=""status"">ยังไม่มีการบันทึก</div></div>"
-45,</div></form>
-46,</section>
-47,"<section class=""panel""><h2>รายการวัสดุและโควตาประจำเดือน</h2>"
-48,"<div class=""toolbar""><input id=""search"" type=""search"" placeholder=""ค้นหารหัสวัสดุหรือชื่อวัสดุ...""><button id=""refreshButton"" type=""button"" onclick=""loadMaterials()"">โหลดข้อมูลใหม่</button></div>"
-49,"<div id=""period"" class=""status"">รอเชื่อมต่อข้อมูล</div><div id=""status"" class=""status"" role=""status"">ยังไม่ได้โหลดข้อมูลจาก Supabase</div>"
-50,"<div class=""table-wrap""><table><thead><tr><th>รหัสวัสดุ</th><th>รายละเอียด</th><th class=""num"">ราคา/หน่วย</th><th class=""num"">โควตา</th><th class=""num"">ใช้แล้ว</th><th class=""num"">คงเหลือ</th><th class=""num"">งบประมาณ</th></tr></thead><tbody id=""materials""><tr><td colspan=""7"">ยังไม่มีข้อมูล</td></tr></tbody></table></div>"
-51,</section>
-52,"<section class=""panel""><h2>หมายเหตุการใช้งาน</h2><p class=""help"">ระบบนี้ใช้รหัสพนักงานเพื่อบันทึกผู้ใช้วัสดุ แต่ไม่ได้ยืนยันตัวบุคคลด้วยการเข้าสู่ระบบ ผู้ที่เข้าถึงหน้าเว็บอาจกรอกรหัสพนักงานอื่นได้ ควรใช้ภายในเครือข่ายหรือเพิ่มการยืนยันตัวตนหากต้องการควบคุมสิทธิ์</p></section>"
-53,</main>
-54,<footer>VSM3 MRO · Material and Monthly Quota Dashboard</footer>
-55,<script>
-56,"const API_URL=""https://jtlvmefokhfnpgwhyutl.supabase.co/functions/v1/mro-api"";"
-57,"const USAGE_API_URL=""https://jtlvmefokhfnpgwhyutl.supabase.co/functions/v1/mro-secure-api"";"
-58,"const SUPABASE_PUBLISHABLE_KEY=""sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK"";"
-59,"let allItems=[],currentPeriod="""";"
-60,"const money=v=>Number(v||0).toLocaleString(""th-TH"",{minimumFractionDigits:2,maximumFractionDigits:2});"
-61,"const number=v=>Number(v||0).toLocaleString(""th-TH"");"
-62,"function setStatus(id,msg,type=""""){const e=document.getElementById(id);e.className=""status""+(type?"" ""+type:"""");e.textContent=msg;}"
-63,function renderItems(){
-64," const q=document.getElementById(""search"").value.trim().toLowerCase();"
-65," const list=allItems.filter(x=>String(x.item_number||"""").toLowerCase().includes(q)||String(x.description||"""").toLowerCase().includes(q));"
-66," const body=document.getElementById(""materials"");"
-67," if(!list.length){body.innerHTML='<tr><td colspan=""7"">ไม่พบรายการวัสดุ</td></tr>';return;}"
-68, body.replaceChildren();
-69," list.forEach(x=>{const tr=document.createElement(""tr"");"
-70," [x.item_number,x.description,money(x.unit_price),number(x.allowed_qty),number(x.used_qty),x.remaining_qty==null?""ไม่มีโควตา"":number(x.remaining_qty),money(x.budget_amount)].forEach((v,i)=>{"
-71," const td=document.createElement(""td"");td.textContent=v??""—"";if(i>=2)td.className=""num"";"
-72," if(i===5&&Number(x.remaining_qty)===0){td.replaceChildren();const tag=document.createElement(""span"");tag.className=""tag zero"";tag.textContent=v;td.appendChild(tag);}tr.appendChild(td);});body.appendChild(tr);});"
-73,}
-74,function populateUsageMaterials(){
-75," const s=document.getElementById(""usageMaterial""),old=s.value;s.replaceChildren();"
-76," const first=document.createElement(""option"");first.value="""";first.textContent=""เลือกวัสดุ"";s.appendChild(first);"
-77," allItems.forEach(x=>{if(!x.allocation_id)return;const o=document.createElement(""option"");o.value=x.allocation_id;o.textContent=x.item_number+"" — ""+(x.description||"""");"
-78," o.dataset.itemNumber=x.item_number||"""";o.dataset.description=x.description||"""";o.dataset.price=String(x.unit_price||0);o.dataset.allowed=String(x.allowed_qty??"""");o.dataset.used=String(x.used_qty||0);o.dataset.remaining=String(x.remaining_qty??"""");s.appendChild(o);});"
-79, if([...s.options].some(o=>o.value===old))s.value=old;updateMaterialSummary();
-80,}
-81,function updateMaterialSummary(){
-82," const s=document.getElementById(""usageMaterial""),o=s.options[s.selectedIndex],box=document.getElementById(""materialSummary"");"
-83," if(!o||!o.value){box.textContent=""เลือกวัสดุเพื่อดูราคา โควตา และยอดคงเหลือ"";return;}"
-84," box.textContent=""รหัส: ""+o.dataset.itemNumber+"" | ราคา/หน่วย: ฿""+money(o.dataset.price)+"" | โควตา: ""+(o.dataset.allowed===""""?""ไม่ระบุ"":number(o.dataset.allowed))+"" | ใช้แล้ว: ""+number(o.dataset.used)+"" | คงเหลือ: ""+(o.dataset.remaining===""""?""ไม่ระบุ"":number(o.dataset.remaining));"
-85,}
-86,async function loadMaterials(){
-87," const b=document.getElementById(""refreshButton"");b.disabled=true;setStatus(""status"",""กำลังโหลดข้อมูล..."");"
-88, try{
-89," if(SUPABASE_PUBLISHABLE_KEY===""sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK"")throw new Error(""กรุณาใส่ Publishable Key ของ Supabase ในตัวแปร SUPABASE_PUBLISHABLE_KEY"");"
-90," const r=await fetch(API_URL,{method:""POST"",headers:{""Content-Type"":""application/json"",""apikey"":SUPABASE_PUBLISHABLE_KEY,""Authorization"":""Bearer ""+SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({})});"
-91," const result=await r.json();if(!r.ok||result.success!==true)throw new Error(result.message||""API ตอบกลับ HTTP ""+r.status);"
-92," const p=result.result;if(!p||!Array.isArray(p.items))throw new Error(""รูปแบบข้อมูลจาก API ไม่ถูกต้อง"");"
-93," allItems=p.items;currentPeriod=p.period||"""";"
-94," document.getElementById(""itemCount"").textContent=number(p.count??allItems.length);"
-95," document.getElementById(""quotaTotal"").textContent=number(allItems.reduce((a,x)=>a+Number(x.allowed_qty||0),0));"
-96," document.getElementById(""budgetTotal"").textContent=""฿""+money(allItems.reduce((a,x)=>a+Number(x.budget_amount||0),0));"
-97," document.getElementById(""period"").textContent=""งวดโควตา: ""+currentPeriod;"
-98," renderItems();populateUsageMaterials();setStatus(""status"",""โหลดข้อมูลสำเร็จ ""+allItems.length+"" รายการ"",""success"");"
-99," }catch(e){setStatus(""status"",""โหลดข้อมูลไม่สำเร็จ: ""+e.message,""error"");}finally{b.disabled=false;}"
-100,}
-101,"function createRequestKey(){if(window.crypto&&typeof window.crypto.randomUUID===""function"")return window.crypto.randomUUID();return ""xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"".replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c===""x""?r:(r&3|8)).toString(16);});}"
-102,"document.getElementById(""usageMaterial"").addEventListener(""change"",updateMaterialSummary);"
-103,"document.getElementById(""search"").addEventListener(""input"",renderItems);"
-104,"document.getElementById(""usageForm"").addEventListener(""submit"",async e=>{"
-105," e.preventDefault();const b=document.getElementById(""submitUsage""),employee=document.getElementById(""employeeId"").value.trim();"
-106," const allocation=document.getElementById(""usageMaterial"").value,qty=Number(document.getElementById(""usageQuantity"").value),notes=document.getElementById(""usageNotes"").value.trim();"
-107," if(!employee)return setStatus(""usageStatus"",""กรุณากรอกรหัสพนักงาน"",""error"");"
-108," if(!allocation)return setStatus(""usageStatus"",""กรุณาเลือกวัสดุ"",""error"");"
-109," if(!Number.isInteger(qty)||qty<=0)return setStatus(""usageStatus"",""จำนวนต้องเป็นจำนวนเต็มมากกว่า 0"",""error"");"
-110," if(SUPABASE_PUBLISHABLE_KEY===""sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK"")return setStatus(""usageStatus"",""กรุณาตั้งค่า Publishable Key ก่อนใช้งาน"",""error"");"
-111," const opt=document.getElementById(""usageMaterial"").selectedOptions[0];b.disabled=true;setStatus(""usageStatus"",""กำลังบันทึกข้อมูล..."");"
-112, try{
-113," const r=await fetch(USAGE_API_URL,{method:""POST"",headers:{""Content-Type"":""application/json"",""apikey"":SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({employee_id:employee,allocation_id:allocation,quantity:qty,request_key:createRequestKey(),notes:notes||null})});"
-114," const result=await r.json();if(!r.ok||result.success!==true)throw new Error(result.message||result.error||""API ตอบกลับ HTTP ""+r.status);"
-115," setStatus(""usageStatus"",""บันทึกสำเร็จ | รหัสวัสดุ: ""+(result.item_number||opt.dataset.itemNumber)+"" | จำนวน: ""+number(result.quantity??qty)+"" | มูลค่า: ฿""+money(result.total_amount??Number(opt.dataset.price||0)*qty)+(result.duplicate?"" | รายการนี้ถูกบันทึกไว้แล้ว"":""""),""success"");"
-116," document.getElementById(""usageQuantity"").value="""";document.getElementById(""usageNotes"").value="""";await loadMaterials();"
-117," }catch(err){setStatus(""usageStatus"",""บันทึกไม่สำเร็จ: ""+err.message,""error"");}finally{b.disabled=false;}"
-118,});
-119,loadMaterials();
-120,</script>
-121,</body>
-122,</html>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VSM3 MRO Dashboard</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Tahoma,sans-serif;background:#f3f6fb;color:#172033}
+header{background:#102b4e;color:white;padding:24px}header h1{margin:0 0 8px;font-size:26px}header p{margin:0;color:#d4e4f7}
+main{max-width:1400px;margin:auto;padding:24px}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.card,.panel{background:white;border-radius:12px;padding:20px;box-shadow:0 2px 8px #15294a0c;margin-bottom:18px}
+.card span{color:#68758b;font-size:14px}.card strong{display:block;margin-top:10px;font-size:25px}
+.toolbar{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}input,select,textarea,button{font:inherit;padding:11px 14px;border-radius:8px;border:1px solid #d5dce7}
+input,select,textarea{width:100%;background:white;color:#172033}.toolbar input{flex:1;min-width:220px}
+button{cursor:pointer;background:#1769d2;color:white;border:0}button:disabled{opacity:.5;cursor:wait}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:14px;color:#4d5b70;font-weight:bold}.field.full{grid-column:1/-1}
+.help{font-size:13px;color:#68758b;line-height:1.5}.status{margin:12px 0;color:#52627a;font-size:14px;line-height:1.5}
+.error{color:#b42318}.success{color:#187744}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:850px}
+th,td{padding:13px 12px;border-bottom:1px solid #e7ebf2;text-align:left;font-size:14px}th{background:#f7f9fc;color:#4d5b70;white-space:nowrap}
+td.num,th.num{text-align:right;white-space:nowrap}.tag{display:inline-block;padding:4px 8px;border-radius:20px;background:#e7f7ed;color:#187744}
+.tag.zero{background:#fff1dc;color:#925500}.material-summary{background:#f7f9fc;border-radius:8px;padding:12px;margin-top:12px;font-size:14px;line-height:1.8}
+footer{text-align:center;padding:24px;color:#68758b;font-size:13px}
+@media(max-width:700px){main{padding:14px}header{padding:20px 14px}.cards{grid-template-columns:1fr}.card{padding:16px}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}}
+</style>
+</head>
+<body>
+<header><h1>VSM3 MRO Dashboard</h1><p>ระบบติดตามวัสดุ โควตาเบิกประจำเดือน และบันทึกการใช้วัสดุ</p></header>
+<main>
+<section class="cards">
+<div class="card"><span>รายการวัสดุ</span><strong id="itemCount">—</strong></div>
+<div class="card"><span>โควตารวม (ชิ้น)</span><strong id="quotaTotal">—</strong></div>
+<div class="card"><span>งบประมาณรวม</span><strong id="budgetTotal">—</strong></div>
+</section>
+<section class="panel">
+<h2>บันทึกการใช้วัสดุ</h2>
+<p class="help">กรอกรหัสพนักงาน เลือกวัสดุ และระบุจำนวนที่ใช้ ระบบจะบันทึกประวัติการใช้วัสดุโดยไม่ต้องเข้าสู่ระบบ</p>
+<form id="usageForm"><div class="form-grid">
+<div class="field"><label for="employeeId">รหัสพนักงาน *</label><input id="employeeId" required maxlength="50" autocomplete="off" placeholder="เช่น 640005"></div>
+<div class="field"><label for="usageMaterial">วัสดุ *</label><select id="usageMaterial" required><option value="">กรุณาโหลดข้อมูลวัสดุก่อน</option></select></div>
+<div class="field"><label for="usageQuantity">จำนวนที่ใช้ *</label><input id="usageQuantity" type="number" min="1" step="1" required placeholder="ระบุจำนวนเต็ม"></div>
+<div class="field"><label for="usageNotes">หมายเหตุ (ไม่บังคับ)</label><input id="usageNotes" maxlength="500" placeholder="เช่น ใช้กับเครื่องจักรหรือไลน์ผลิต"></div>
+<div class="field full"><div id="materialSummary" class="material-summary">เลือกวัสดุเพื่อดูราคา โควตา และยอดคงเหลือ</div></div>
+<div class="field full"><button id="submitUsage" type="submit">บันทึกการใช้วัสดุ</button><div id="usageStatus" class="status" role="status">ยังไม่มีการบันทึก</div></div>
+</div></form>
+</section>
+<section class="panel"><h2>รายการวัสดุและโควตาประจำเดือน</h2>
+<div class="toolbar"><input id="search" type="search" placeholder="ค้นหารหัสวัสดุหรือชื่อวัสดุ..."><button id="refreshButton" type="button" onclick="loadMaterials()">โหลดข้อมูลใหม่</button></div>
+<div id="period" class="status">รอเชื่อมต่อข้อมูล</div><div id="status" class="status" role="status">ยังไม่ได้โหลดข้อมูลจาก Supabase</div>
+<div class="table-wrap"><table><thead><tr><th>รหัสวัสดุ</th><th>รายละเอียด</th><th class="num">ราคา/หน่วย</th><th class="num">โควตา</th><th class="num">ใช้แล้ว</th><th class="num">คงเหลือ</th><th class="num">งบประมาณ</th></tr></thead><tbody id="materials"><tr><td colspan="7">ยังไม่มีข้อมูล</td></tr></tbody></table></div>
+</section>
+<section class="panel"><h2>หมายเหตุการใช้งาน</h2><p class="help">ระบบนี้ใช้รหัสพนักงานเพื่อบันทึกผู้ใช้วัสดุ แต่ไม่ได้ยืนยันตัวบุคคลด้วยการเข้าสู่ระบบ ผู้ที่เข้าถึงหน้าเว็บอาจกรอกรหัสพนักงานอื่นได้ ควรใช้ภายในเครือข่ายหรือเพิ่มการยืนยันตัวตนหากต้องการควบคุมสิทธิ์</p></section>
+</main>
+<footer>VSM3 MRO · Material and Monthly Quota Dashboard</footer>
+<script>
+const API_URL="https://jtlvmefokhfnpgwhyutl.supabase.co/functions/v1/mro-api";
+const USAGE_API_URL="https://jtlvmefokhfnpgwhyutl.supabase.co/functions/v1/mro-secure-api";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK";
+let allItems=[],currentPeriod="";
+const money=v=>Number(v||0).toLocaleString("th-TH",{minimumFractionDigits:2,maximumFractionDigits:2});
+const number=v=>Number(v||0).toLocaleString("th-TH");
+function setStatus(id,msg,type=""){const e=document.getElementById(id);e.className="status"+(type?" "+type:"");e.textContent=msg;}
+function renderItems(){
+ const q=document.getElementById("search").value.trim().toLowerCase();
+ const list=allItems.filter(x=>String(x.item_number||"").toLowerCase().includes(q)||String(x.description||"").toLowerCase().includes(q));
+ const body=document.getElementById("materials");
+ if(!list.length){body.innerHTML='<tr><td colspan="7">ไม่พบรายการวัสดุ</td></tr>';return;}
+ body.replaceChildren();
+ list.forEach(x=>{const tr=document.createElement("tr");
+ [x.item_number,x.description,money(x.unit_price),number(x.allowed_qty),number(x.used_qty),x.remaining_qty==null?"ไม่มีโควตา":number(x.remaining_qty),money(x.budget_amount)].forEach((v,i)=>{
+ const td=document.createElement("td");td.textContent=v??"—";if(i>=2)td.className="num";
+ if(i===5&&Number(x.remaining_qty)===0){td.replaceChildren();const tag=document.createElement("span");tag.className="tag zero";tag.textContent=v;td.appendChild(tag);}tr.appendChild(td);});body.appendChild(tr);});
+}
+function populateUsageMaterials(){
+ const s=document.getElementById("usageMaterial"),old=s.value;s.replaceChildren();
+ const first=document.createElement("option");first.value="";first.textContent="เลือกวัสดุ";s.appendChild(first);
+ allItems.forEach(x=>{if(!x.allocation_id)return;const o=document.createElement("option");o.value=x.allocation_id;o.textContent=x.item_number+" — "+(x.description||"");
+ o.dataset.itemNumber=x.item_number||"";o.dataset.description=x.description||"";o.dataset.price=String(x.unit_price||0);o.dataset.allowed=String(x.allowed_qty??"");o.dataset.used=String(x.used_qty||0);o.dataset.remaining=String(x.remaining_qty??"");s.appendChild(o);});
+ if([...s.options].some(o=>o.value===old))s.value=old;updateMaterialSummary();
+}
+function updateMaterialSummary(){
+ const s=document.getElementById("usageMaterial"),o=s.options[s.selectedIndex],box=document.getElementById("materialSummary");
+ if(!o||!o.value){box.textContent="เลือกวัสดุเพื่อดูราคา โควตา และยอดคงเหลือ";return;}
+ box.textContent="รหัส: "+o.dataset.itemNumber+" | ราคา/หน่วย: ฿"+money(o.dataset.price)+" | โควตา: "+(o.dataset.allowed===""?"ไม่ระบุ":number(o.dataset.allowed))+" | ใช้แล้ว: "+number(o.dataset.used)+" | คงเหลือ: "+(o.dataset.remaining===""?"ไม่ระบุ":number(o.dataset.remaining));
+}
+async function loadMaterials(){
+ const b=document.getElementById("refreshButton");b.disabled=true;setStatus("status","กำลังโหลดข้อมูล...");
+ try{
+ if(SUPABASE_PUBLISHABLE_KEY==="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK"throw new Error("กรุณาใส่ Publishable Key ของ Supabase ในตัวแปร SUPABASE_PUBLISHABLE_KEY");
+ const r=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY,"Authorization":"Bearer "+SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({})});
+ const result=await r.json();if(!r.ok||result.success!==true)throw new Error(result.message||"API ตอบกลับ HTTP "+r.status);
+ const p=result.result;if(!p||!Array.isArray(p.items))throw new Error("รูปแบบข้อมูลจาก API ไม่ถูกต้อง");
+ allItems=p.items;currentPeriod=p.period||"";
+ document.getElementById("itemCount").textContent=number(p.count??allItems.length);
+ document.getElementById("quotaTotal").textContent=number(allItems.reduce((a,x)=>a+Number(x.allowed_qty||0),0));
+ document.getElementById("budgetTotal").textContent="฿"+money(allItems.reduce((a,x)=>a+Number(x.budget_amount||0),0));
+ document.getElementById("period").textContent="งวดโควตา: "+currentPeriod;
+ renderItems();populateUsageMaterials();setStatus("status","โหลดข้อมูลสำเร็จ "+allItems.length+" รายการ","success");
+ }catch(e){setStatus("status","โหลดข้อมูลไม่สำเร็จ: "+e.message,"error");}finally{b.disabled=false;}
+}
+function createRequestKey(){if(window.crypto&&typeof window.crypto.randomUUID==="function")return window.crypto.randomUUID();return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==="x"?r:(r&3|8)).toString(16);});}
+document.getElementById("usageMaterial").addEventListener("change",updateMaterialSummary);
+document.getElementById("search").addEventListener("input",renderItems);
+document.getElementById("usageForm").addEventListener("submit",async e=>{
+ e.preventDefault();const b=document.getElementById("submitUsage"),employee=document.getElementById("employeeId").value.trim();
+ const allocation=document.getElementById("usageMaterial").value,qty=Number(document.getElementById("usageQuantity").value),notes=document.getElementById("usageNotes").value.trim();
+ if(!employee)return setStatus("usageStatus","กรุณากรอกรหัสพนักงาน","error");
+ if(!allocation)return setStatus("usageStatus","กรุณาเลือกวัสดุ","error");
+ if(!Number.isInteger(qty)||qty<=0)return setStatus("usageStatus","จำนวนต้องเป็นจำนวนเต็มมากกว่า 0","error");
+ if(SUPABASE_PUBLISHABLE_KEY==="sb_publishable_OVdt98YWir5-G5ikFC0yhQ_fSl3-8DK")return setStatus("usageStatus","กรุณาตั้งค่า Publishable Key ก่อนใช้งาน","error");
+ const opt=document.getElementById("usageMaterial").selectedOptions[0];b.disabled=true;setStatus("usageStatus","กำลังบันทึกข้อมูล...");
+ try{
+ const r=await fetch(USAGE_API_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_PUBLISHABLE_KEY},body:JSON.stringify({employee_id:employee,allocation_id:allocation,quantity:qty,request_key:createRequestKey(),notes:notes||null})});
+ const result=await r.json();if(!r.ok||result.success!==true)throw new Error(result.message||result.error||"API ตอบกลับ HTTP "+r.status);
+ setStatus("usageStatus","บันทึกสำเร็จ | รหัสวัสดุ: "+(result.item_number||opt.dataset.itemNumber)+" | จำนวน: "+number(result.quantity??qty)+" | มูลค่า: ฿"+money(result.total_amount??Number(opt.dataset.price||0)*qty)+(result.duplicate?" | รายการนี้ถูกบันทึกไว้แล้ว":""),"success");
+ document.getElementById("usageQuantity").value="";document.getElementById("usageNotes").value="";await loadMaterials();
+ }catch(err){setStatus("usageStatus","บันทึกไม่สำเร็จ: "+err.message,"error");}finally{b.disabled=false;}
+});
+loadMaterials();
+</script>
+</body>
+</html>
